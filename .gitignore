@@ -1,0 +1,44 @@
+# Python
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+
+.env/
+.venv/
+env/
+venv/
+ENV/
+
+*.aux
+*.bbl
+*.blg
+*.brf
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.fls
+*fdb_latexmk
+*synctex.gz
+*.xdf
+
+# System/Editor files
+.vscode/
+.idea\
+*.swp
+*~
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# PDF outputs
+*.pdf
+*.png
+
+# Logs
+*.log
+*.tmp
