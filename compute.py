@@ -1,5 +1,10 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from flask import jsonify
+import uuid
+import os
+
+PLOT_FOLDER = 'static/plots'
 
 def compute_log_fit(data):
     try:
@@ -15,6 +20,26 @@ def compute_log_fit(data):
         coeffs, _, _, _ = np.linalg.lstsq(A, y, rcond=None)
         a, b = coeffs
 
-        return jsonify({'a': a, 'b': b})
+        #  Create plot
+        x_fit = np.linspace(min(x), max(x), 100)
+        y_fit = a * np.log(x_fit) + b
+
+        plt.figure()
+        plt.scatter(x, y, color='blue', label='Data Points')
+        plt.plot(x_fit, y_fit, color='red', label=f'Fit: y = {a:.2f}ln(x) + {b:.2f}')
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title('Logarithmic Fit')
+        plt.legend()
+
+        # Save to static/plots
+        if not os.path.exists(PLOT_FOLDER):
+            os.makedirs(PLOT_FOLDER)
+        filename = f"{uuid.uuid4().hex}.png"
+        filepath = os.path.join(PLOT_FOLDER, filename)
+        plt.savefig(filepath)
+        plt.close()
+
+        return jsonify({'a': a, 'b': b, 'plot_url': f'/static/plots/{filename}'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
