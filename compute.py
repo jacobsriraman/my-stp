@@ -25,10 +25,10 @@ def compute_log_fit(data):
         y_fit = a * np.log(x_fit) + b
 
         plt.figure()
-        plt.scatter(x, y, color='blue', label='Data Points')
-        plt.plot(x_fit, y_fit, color='red', label=f'Fit: y = {a:.2f}ln(x) + {b:.2f}')
-        plt.xlabel('x')
-        plt.ylabel('y')
+        plt.scatter(x, y, color='blue', label='Race Performances')
+        plt.plot(x_fit, y_fit, color='red', label=f'Logarithmic Fit')
+        plt.xlabel('Duration (s)')
+        plt.ylabel('Mile Pace (s/mile)')
         plt.title('Logarithmic Fit')
         plt.legend()
 
