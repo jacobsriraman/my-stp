@@ -22,9 +22,21 @@ document.getElementById('data-form').addEventListener('submit', async function(e
     const data = await response.json();
 
     if (response.ok) {
+        // Create output table values from x
+        const xVals = [100000, 20000, 9000, 8100, 7200, 6000, 3600, 3000, 2400, 1800, 900, 600, 240, 110];
+        const outputRows = xVals.map(x => {
+            const y = (data.a * Math.log(x)) + data.b;
+            return `<tr><td>${x}</td><td>${y.toFixed(4)}</td></tr>`;
+        }).join('');
+
         result.innerHTML = `
             <p><strong>Equation:</strong> y = ${data.a.toFixed(4)} * ln(x) + ${data.b.toFixed(4)}</p>
             <img src="${data.plot_url}" alt="Logarithmic Fit Plot" style="max-width: 100%; margin-top: 10px;">
+            <h3>Computed y values for selected x:</h3>
+            <table>
+                <thead><tr><th>x</th><th>y</th></tr></thead>
+                <tbody>${outputRows}</tbody>
+            </table>
         `;
     } else {
         result.innerHTML = `Error: ${data.error}`;
