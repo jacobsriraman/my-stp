@@ -1,16 +1,5 @@
 // static/script.js
-
-function secondsToMMSS(seconds) {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = (seconds % 60).toFixed(0);
-
-  const formattedMinutes = String(minutes).padStart(2, '0');
-  const formattedSeconds = String(remainingSeconds).padStart(2, '0');
-
-  return `${formattedMinutes}:${formattedSeconds}`;
-}
-
-
+import {secondsToMMSS} from './utils.js';
 
 document.getElementById('data-form').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -19,7 +8,7 @@ document.getElementById('data-form').addEventListener('submit', async function(e
 
     tableRows.forEach(row => {
         const x = row.cells[0].querySelector('input').value;
-        const y = row.cells[1].querySelector('input').value;
+        const y = x / row.cells[1].querySelector('input').value * 1609;
         if (x !== '' && y !== '') {
             points.push(`${x},${y}`);
         }
