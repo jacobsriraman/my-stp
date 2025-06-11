@@ -69,5 +69,5 @@ document.getElementById('add-row').addEventListener('click', function () {
 // Clear table functionality
 document.getElementById('clear-table').addEventListener('click', function () {
     const tableBody = document.querySelector('#input-table tbody');
-    tableBody.innerHTML = '<tr><td><input type="number" step="any"></td><td><input type="number" step="any"></td></tr>';
+    tableBody.innerHTML = '<tr><td><input type="number" step="any"></td><td><input type="number" step="any"></td></tr><tr><td><input type="number" id="duration" step="any"></td><td><input type="number" id="distance" step="any"></td></tr>';
 });
