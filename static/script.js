@@ -1,4 +1,17 @@
 // static/script.js
+
+function secondsToMMSS(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = (seconds % 60).toFixed(0);
+
+  const formattedMinutes = String(minutes).padStart(2, '0');
+  const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+
+  return `${formattedMinutes}:${formattedSeconds}`;
+}
+
+
+
 document.getElementById('data-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     const tableRows = document.querySelectorAll('#input-table tbody tr');
@@ -24,17 +37,19 @@ document.getElementById('data-form').addEventListener('submit', async function(e
     if (response.ok) {
         // Create output table values from x
         const xVals = [100000, 20000, 9000, 8100, 7200, 6000, 3600, 3000, 2400, 1800, 900, 600, 240, 110];
-        const outputRows = xVals.map(x => {
+        const xValNames = ["Easy Limit", "Fast Easy", "Steady State", "8100", "7200", "Long Run Finish", "Tempo 17min+",
+            "Tempo 8-16min", "Tempo 1-7min", "CV", "5k", "3k", "Mile", "800"]
+        const outputRows = xVals.map((x,i) => {
             const y = (data.a * Math.log(x)) + data.b;
-            return `<tr><td>${x}</td><td>${y.toFixed(4)}</td></tr>`;
+            return `<tr><td>${xValNames[i]}</td><td>${secondsToMMSS(y)}</td></tr>`;
         }).join('');
 
         result.innerHTML = `
             <p><strong>Equation:</strong> y = ${data.a.toFixed(4)} * ln(x) + ${data.b.toFixed(4)}</p>
             <img src="${data.plot_url}" alt="Logarithmic Fit Plot" style="max-width: 100%; margin-top: 10px;">
-            <h3>Computed y values for selected x:</h3>
+            <h3>Suggested Training Paces:</h3>
             <table>
-                <thead><tr><th>x</th><th>y</th></tr></thead>
+                <thead><tr><th>Pace Type</th><th>Pace per mile</th></tr></thead>
                 <tbody>${outputRows}</tbody>
             </table>
         `;
