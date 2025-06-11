@@ -10,7 +10,16 @@
 <body>
     <h1>Logarithmic Fit Tool</h1>
     <form id="data-form">
-        <textarea id="points" placeholder="Enter points as x,y per line"></textarea>
+        <table id="input-table">
+            <thead>
+                <tr><th>X</th><th>Y</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><input type="number" step="any"></td><td><input type="number" step="any"></td></tr>
+            </tbody>
+        </table>
+        <button type="button" id="add-row">Add Row</button>
+        <button type="button" id="clear-table">Clear</button>
         <button type="submit">Submit</button>
     </form>
     <div id="result"></div>
