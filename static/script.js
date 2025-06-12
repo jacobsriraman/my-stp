@@ -55,8 +55,24 @@ document.getElementById('add-row').addEventListener('click', function () {
     tableBody.appendChild(newRow);
 });
 
+// Remove row functionality
+document.getElementById('remove-row').addEventListener('click', function () {
+    const tableBody = document.querySelector('#input-table tbody');
+    const rows = tableBody.querySelectorAll('tr');
+
+    if (rows.length > 2) {
+        tableBody.removeChild(rows[rows.length-1]);
+    } else {
+        alert("At least two performances are required")
+    }
+
+});
+
 // Clear table functionality
 document.getElementById('clear-table').addEventListener('click', function () {
-    const tableBody = document.querySelector('#input-table tbody');
-    tableBody.innerHTML = '<tr><td><input type="number" step="any"></td><td><input type="number" step="any"></td></tr><tr><td><input type="number" id="duration" step="any"></td><td><input type="number" id="distance" step="any"></td></tr>';
+    const tableBody = document.querySelector('#input-table tbody');    
+    tableBody.innerHTML = `
+        <tr><td><input type="number" step="any"></td><td><input type="number" step="any"></td></tr>
+        <tr><td><input type="number" step="any"></td><td><input type="number" step="any"></td></tr>
+    `;
 });
