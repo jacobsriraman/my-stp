@@ -17,14 +17,36 @@ textarea {
     font-family: monospace;
 }
 
+/* Default button */
 button {
-    padding: 0.5rem 1rem;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
+  padding: 0.5em 1em;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
 }
+
+/* Color variations */
+.btn-blue {
+  background-color: #007BFF;
+  color: white;
+}
+
+.btn-red {
+  background-color: #DC3545;
+  color: white;
+}
+
+.btn-green {
+  background-color: #28A745;
+  color: white;
+}
+
+.btn-yellow {
+  background-color: #FFC107;
+  color: black;
+}
+
 
 button:hover {
     background-color: #0056b3;
