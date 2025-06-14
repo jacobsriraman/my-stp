@@ -1,5 +1,6 @@
 // static/script.js
 import {secondsToMMSS} from './utils.js';
+import { parseHHMMSSToSeconds } from './utils.js';
 
 document.getElementById('data-form').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -7,7 +8,8 @@ document.getElementById('data-form').addEventListener('submit', async function(e
     let points = [];
 
     tableRows.forEach(row => {
-        const x = row.cells[0].querySelector('input').value;
+        const xRaw = row.cells[0].querySelector('input').value;
+        const x = parseHHMMSSToSeconds(xRaw);
         const y = x / row.cells[1].querySelector('input').value * 1609;
         if (x !== '' && y !== '') {
             points.push(`${x},${y}`);
@@ -51,8 +53,10 @@ document.getElementById('data-form').addEventListener('submit', async function(e
 document.getElementById('add-row').addEventListener('click', function () {
     const tableBody = document.querySelector('#input-table tbody');
     const newRow = document.createElement('tr');
-    newRow.innerHTML = '<td><input type="number" step="any"></td><td><input type="number" step="any"></td>';
-    tableBody.appendChild(newRow);
+    newRow.innerHTML = `
+    <td><input type="text" class="duration-input" placeholder="HH:MM:SS"></td>
+    <td><input type="number" step="any" class="value-input"></td>
+`;    tableBody.appendChild(newRow);
 });
 
 // Remove row functionality
@@ -70,9 +74,15 @@ document.getElementById('remove-row').addEventListener('click', function () {
 
 // Clear table functionality
 document.getElementById('clear-table').addEventListener('click', function () {
-    const tableBody = document.querySelector('#input-table tbody');    
+    const tableBody = document.querySelector('#input-table tbody');
     tableBody.innerHTML = `
-        <tr><td><input type="number" step="any"></td><td><input type="number" step="any"></td></tr>
-        <tr><td><input type="number" step="any"></td><td><input type="number" step="any"></td></tr>
+        <tr>
+            <td><input type="text" class="duration-input" placeholder="HH:MM:SS"></td>
+            <td><input type="number" step="any" class="value-input"></td>
+        </tr>
+        <tr>
+            <td><input type="text" class="duration-input" placeholder="HH:MM:SS"></td>
+            <td><input type="number" step="any" class="value-input"></td>
+        </tr>
     `;
 });
