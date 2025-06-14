@@ -1,6 +1,7 @@
 // static/script.js
 import {secondsToMMSS} from './utils.js';
 import { parseHHMMSSToSeconds } from './utils.js';
+import { getNewRowHTML } from './utils.js';
 
 document.getElementById('data-form').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -51,12 +52,8 @@ document.getElementById('data-form').addEventListener('submit', async function(e
 
 // Add row functionality
 document.getElementById('add-row').addEventListener('click', function () {
-    const tableBody = document.querySelector('#input-table tbody');
-    const newRow = document.createElement('tr');
-    newRow.innerHTML = `
-    <td><input type="text" class="duration-input" placeholder="HH:MM:SS"></td>
-    <td><input type="number" step="any" class="value-input"></td>
-`;    tableBody.appendChild(newRow);
+  const tableBody = document.querySelector('#input-table tbody');
+  tableBody.insertAdjacentHTML('beforeend', getNewRowHTML());
 });
 
 // Remove row functionality
@@ -74,15 +71,7 @@ document.getElementById('remove-row').addEventListener('click', function () {
 
 // Clear table functionality
 document.getElementById('clear-table').addEventListener('click', function () {
-    const tableBody = document.querySelector('#input-table tbody');
-    tableBody.innerHTML = `
-        <tr>
-            <td><input type="text" class="duration-input" placeholder="HH:MM:SS"></td>
-            <td><input type="number" step="any" class="value-input"></td>
-        </tr>
-        <tr>
-            <td><input type="text" class="duration-input" placeholder="HH:MM:SS"></td>
-            <td><input type="number" step="any" class="value-input"></td>
-        </tr>
-    `;
+  const tableBody = document.querySelector('#input-table tbody');
+  tableBody.innerHTML = getNewRowHTML() + getNewRowHTML();
 });
+

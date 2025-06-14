@@ -25,3 +25,12 @@ export function parseHHMMSSToSeconds(timeStr) {
     return NaN
   }
 }
+
+export function getNewRowHTML() {
+    return `
+        <tr>
+            <td><input type="text" class="duration-input" placeholder="HH:MM:SS"></td>
+            <td><input type="number" step="any" class="value-input"></td>
+        </tr>
+    `;
+}
