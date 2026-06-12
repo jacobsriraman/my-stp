@@ -402,43 +402,33 @@
 
     function renderEntries() {
         refs.entriesList.innerHTML = state.entries.map(function (entry, index) {
+            const selectedPreset = entry.distancePreset || "";
+            const showCustomFields = !selectedPreset || selectedPreset === "custom";
+
             return `
                 <div class="entry-row" data-index="${index}">
                     <div class="field-group distance-stack">
-                        <span class="mini-label">Distance</span>
-                        <div class="distance-preset-list" role="group" aria-label="Common race distances">
+                        <span class="mini-label">Race distance</span>
+                        <select data-field="distancePreset" aria-label="Common race distance">
+                            <option value="" ${selectedPreset === "" ? "selected" : ""}>Common distance</option>
                             ${DISTANCE_PRESETS.map(function (preset) {
-                                return `
-                                    <button
-                                        class="preset-chip ${entry.distancePreset === preset.key ? "is-active" : ""}"
-                                        data-action="preset"
-                                        data-preset="${preset.key}"
-                                        type="button"
-                                    >
-                                        ${escapeHtml(preset.label)}
-                                    </button>
-                                `;
+                                return `<option value="${preset.key}" ${selectedPreset === preset.key ? "selected" : ""}>${escapeHtml(preset.label)}</option>`;
                             }).join("")}
-                            <button
-                                class="preset-chip ${entry.distancePreset === "custom" ? "is-active" : ""}"
-                                data-action="preset"
-                                data-preset="custom"
-                                type="button"
-                            >
-                                Custom
-                            </button>
-                        </div>
-                        <div class="field-inline custom-distance-fields">
-                            <input type="text" inputmode="decimal" data-field="distanceValue" value="${escapeHtml(entry.distanceValue)}" placeholder="Distance">
-                            <select data-field="distanceUnit" aria-label="Distance unit">
-                                <option value="m" ${entry.distanceUnit === "m" ? "selected" : ""}>m</option>
-                                <option value="km" ${entry.distanceUnit === "km" ? "selected" : ""}>km</option>
-                                <option value="mi" ${entry.distanceUnit === "mi" ? "selected" : ""}>mi</option>
-                            </select>
-                        </div>
+                            <option value="custom" ${selectedPreset === "custom" ? "selected" : ""}>Custom distance</option>
+                        </select>
+                        ${showCustomFields ? `
+                            <div class="field-inline custom-distance-fields">
+                                <input type="text" inputmode="decimal" data-field="distanceValue" value="${escapeHtml(entry.distanceValue)}" placeholder="Distance">
+                                <select data-field="distanceUnit" aria-label="Distance unit">
+                                    <option value="m" ${entry.distanceUnit === "m" ? "selected" : ""}>m</option>
+                                    <option value="km" ${entry.distanceUnit === "km" ? "selected" : ""}>km</option>
+                                    <option value="mi" ${entry.distanceUnit === "mi" ? "selected" : ""}>mi</option>
+                                </select>
+                            </div>
+                        ` : ""}
                     </div>
                     <div class="time-group">
-                        <span class="mini-label">Finish time</span>
+                        <span class="mini-label">Time</span>
                         <div class="time-grid">
                             <input type="text" inputmode="numeric" data-field="hours" value="${escapeHtml(entry.hours)}" placeholder="hh" aria-label="Hours">
                             <input type="text" inputmode="numeric" data-field="minutes" value="${escapeHtml(entry.minutes)}" placeholder="mm" aria-label="Minutes">
@@ -446,13 +436,12 @@
                         </div>
                     </div>
                     <div class="field-group">
-                        <span class="mini-label">Race date</span>
+                        <span class="mini-label">Date</span>
                         <input type="date" data-field="raceDate" value="${escapeHtml(entry.raceDate)}">
                     </div>
                     <button class="icon-button" data-action="remove" type="button" aria-label="Remove entry">×</button>
                     <div class="field-group entry-note-field">
-                        <span class="mini-label">Optional label</span>
-                        <input type="text" data-field="label" value="${escapeHtml(entry.label)}" placeholder="State meet, windy day, rust-buster, etc.">
+                        <input type="text" data-field="label" value="${escapeHtml(entry.label)}" placeholder="Optional label">
                     </div>
                 </div>
             `;
@@ -658,6 +647,23 @@
                 return;
             }
 
+            if (field === "distancePreset") {
+                const selectedPreset = event.target.value;
+                const preset = getDistancePresetByKey(selectedPreset);
+
+                state.entries[index].distancePreset = selectedPreset;
+                if (preset) {
+                    state.entries[index].distanceValue = String(preset.distanceValue);
+                    state.entries[index].distanceUnit = preset.distanceUnit;
+                } else if (!selectedPreset) {
+                    state.entries[index].distanceValue = "";
+                    state.entries[index].distanceUnit = "km";
+                }
+
+                persistAndRefresh({ rerenderEntries: true });
+                return;
+            }
+
             state.entries[index][field] = event.target.value;
             if (field === "distanceValue" || field === "distanceUnit") {
                 state.entries[index].distancePreset = deriveDistancePreset(
@@ -689,33 +695,6 @@
         refs.entriesList.addEventListener("change", handleEntryMutation);
 
         refs.entriesList.addEventListener("click", function (event) {
-            const presetButton = event.target.closest("[data-action='preset']");
-            if (presetButton) {
-                const row = presetButton.closest(".entry-row");
-                const index = Number(row.dataset.index);
-                const presetKey = presetButton.dataset.preset;
-                const entry = state.entries[index];
-                const preset = getDistancePresetByKey(presetKey);
-
-                if (!Number.isInteger(index) || !entry) {
-                    return;
-                }
-
-                if (preset) {
-                    entry.distanceValue = String(preset.distanceValue);
-                    entry.distanceUnit = preset.distanceUnit;
-                    entry.distancePreset = preset.key;
-                } else {
-                    entry.distancePreset = "custom";
-                    if (!`${entry.distanceValue}`.trim()) {
-                        entry.distanceUnit = "km";
-                    }
-                }
-
-                persistAndRefresh({ rerenderEntries: true });
-                return;
-            }
-
             const button = event.target.closest("[data-action='remove']");
             if (!button) {
                 return;
