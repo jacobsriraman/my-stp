@@ -28,7 +28,7 @@ ENV/
 
 # System/Editor files
 .vscode/
-.idea\
+.idea/
 *.swp
 *~
 
@@ -42,3 +42,4 @@ ENV/
 # Logs
 *.log
 *.tmp
+pace_lab.db

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pace Lab</title>
+    <meta name="description" content="A guest-mode training pace calculator for distance runners using multiple race performances and a logarithmic best-fit curve.">
+    <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="hero fade-up">
+            <div class="hero-copy">
+                <p class="eyebrow">Pace Lab</p>
+                <h1>Training paces built from the full shape of your fitness.</h1>
+                <p class="hero-text">
+                    Add two or more recent race performances, convert each result into a standardized mile pace,
+                    and fit a logarithmic curve through the data to estimate smarter training paces.
+                </p>
+            </div>
+            <div class="hero-panel">
+                <p class="panel-kicker">How it works</p>
+                <ol class="hero-steps">
+                    <li>Enter race distances and finish times.</li>
+                    <li>We standardize every performance to seconds per mile.</li>
+                    <li>A logarithmic best-fit line predicts training paces across effort durations.</li>
+                </ol>
+            </div>
+        </header>
+
+        <main class="layout">
+            <section class="workspace card fade-up">
+                <div class="section-heading">
+                    <div>
+                        <p class="section-kicker">Calculator</p>
+                        <h2>Recent performances</h2>
+                    </div>
+                    <div class="workspace-actions">
+                        <button class="ghost-button" id="add-entry-button" type="button">Add performance</button>
+                        <button class="ghost-button" id="clear-entries-button" type="button">Clear board</button>
+                    </div>
+                </div>
+
+                <div class="table-head">
+                    <span>Race</span>
+                    <span>Distance</span>
+                    <span>Time</span>
+                    <span>Date</span>
+                    <span>Row</span>
+                </div>
+
+                <div id="entries-list" class="entries-list"></div>
+
+                <div class="workspace-footer">
+                    <p id="draft-note" class="draft-note"></p>
+                    <p id="calc-error" class="error-text" hidden></p>
+                </div>
+            </section>
+
+            <aside class="sidebar">
+                <section class="card account-card fade-up">
+                    <div class="section-heading compact">
+                        <div>
+                            <p class="section-kicker">Guest Mode</p>
+                            <h2>Browser-saved draft</h2>
+                        </div>
+                    </div>
+
+                    <p class="account-copy">
+                        This version runs entirely in guest mode. Your current board is saved in this browser on this device, so if you close and reopen the page your entries should still be here.
+                    </p>
+                    <p class="side-note">
+                        Drafts do not sync across devices and can be cleared by private browsing mode or by deleting site data.
+                    </p>
+                </section>
+
+                <section class="card notes-card fade-up">
+                    <p class="section-kicker">Interpretation</p>
+                    <h2>What the fit means</h2>
+                    <p class="side-note">
+                        The suggested paces are anchored to your requested effort durations, from an easy-limit effort of 100000 seconds down to a mile effort of 240 seconds.
+                    </p>
+                    <p class="side-note">
+                        This is still an estimate, not a replacement for a coach or context like terrain, weather, and fatigue.
+                    </p>
+                </section>
+            </aside>
+
+            <section class="card results-card fade-up">
+                <div class="section-heading">
+                    <div>
+                        <p class="section-kicker">Results</p>
+                        <h2>Best-fit training paces</h2>
+                    </div>
+                    <div id="fit-meta" class="fit-meta muted">Add at least two performances to unlock the model.</div>
+                </div>
+
+                <div id="results-empty" class="empty-state">
+                    Add a couple of recent races to see standardized paces, the logarithmic fit, and predicted training paces.
+                </div>
+
+                <div id="results-panel" hidden>
+                    <div id="training-pace-grid" class="training-pace-grid"></div>
+
+                    <div class="chart-wrap">
+                        <div class="chart-heading">
+                            <h3>Logarithmic fit</h3>
+                            <p>Duration on the x-axis, pace in seconds per mile on the y-axis.</p>
+                        </div>
+                        <svg id="fit-chart" class="fit-chart" viewBox="0 0 720 360" role="img" aria-label="Training pace fit chart"></svg>
+                    </div>
+
+                    <div class="derived-table-wrap">
+                        <div class="chart-heading">
+                            <h3>Standardized race entries</h3>
+                            <p>Every performance is converted to a common pace basis before fitting.</p>
+                        </div>
+                        <div id="derived-table" class="derived-table"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="./assets/app.js" defer></script>
+</body>
+</html>
