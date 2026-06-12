@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pace Lab</title>
-    <meta name="description" content="A guest-mode training pace calculator for distance runners using multiple race performances and a logarithmic best-fit curve.">
+    <title>my-stp</title>
+    <meta name="description" content="my-stp is a static training pace calculator for distance runners using multiple recent race performances and a logarithmic best-fit curve.">
     <link rel="stylesheet" href="./assets/style.css">
 </head>
 <body>
     <div class="page-shell">
         <header class="hero fade-up">
             <div class="hero-copy">
-                <p class="eyebrow">Pace Lab</p>
-                <h1>Training paces built from the full shape of your fitness.</h1>
+                <p class="eyebrow">my-stp</p>
+                <h1>Suggested training paces built from more than one race.</h1>
                 <p class="hero-text">
                     Add two or more recent race performances, convert each result into a standardized mile pace,
                     and fit a logarithmic curve through the data to estimate smarter training paces.
@@ -36,13 +36,12 @@
                         <h2>Recent performances</h2>
                     </div>
                     <div class="workspace-actions">
-                        <button class="ghost-button" id="add-entry-button" type="button">Add performance</button>
+                        <button class="ghost-button" id="add-entry-button" type="button">Add race</button>
                         <button class="ghost-button" id="clear-entries-button" type="button">Clear board</button>
                     </div>
                 </div>
 
                 <div class="table-head">
-                    <span>Race</span>
                     <span>Distance</span>
                     <span>Time</span>
                     <span>Date</span>
@@ -90,7 +89,7 @@
                 <div class="section-heading">
                     <div>
                         <p class="section-kicker">Results</p>
-                        <h2>Best-fit training paces</h2>
+                        <h2>Suggested training paces</h2>
                     </div>
                     <div id="fit-meta" class="fit-meta muted">Add at least two performances to unlock the model.</div>
                 </div>
@@ -100,7 +99,7 @@
                 </div>
 
                 <div id="results-panel" hidden>
-                    <div id="training-pace-grid" class="training-pace-grid"></div>
+                    <div id="training-pace-list" class="training-pace-list"></div>
 
                     <div class="chart-wrap">
                         <div class="chart-heading">

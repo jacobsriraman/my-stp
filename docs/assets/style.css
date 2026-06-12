@@ -194,7 +194,7 @@ select {
 .table-head,
 .entry-row {
     display: grid;
-    grid-template-columns: minmax(150px, 1.1fr) minmax(180px, 1fr) minmax(180px, 1.05fr) minmax(140px, 0.7fr) 48px;
+    grid-template-columns: minmax(250px, 1.2fr) minmax(180px, 1fr) minmax(150px, 0.8fr) 48px;
     gap: 12px;
     align-items: center;
 }
@@ -229,6 +229,16 @@ select {
     display: grid;
     grid-template-columns: 1fr 92px;
     gap: 10px;
+}
+
+.distance-stack,
+.entry-note-field {
+    display: grid;
+    gap: 8px;
+}
+
+.entry-note-field {
+    grid-column: 1 / 4;
 }
 
 .time-grid {
@@ -301,40 +311,47 @@ select:focus {
     background: rgba(255, 252, 247, 0.6);
 }
 
-.training-pace-grid {
+.training-pace-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 14px;
+    gap: 12px;
     margin-bottom: 24px;
 }
 
-.pace-card {
-    padding: 18px;
+.pace-list-item {
+    padding: 18px 20px;
     border-radius: var(--radius-lg);
     background: linear-gradient(180deg, rgba(255, 248, 240, 0.95), rgba(248, 233, 217, 0.82));
     border: 1px solid rgba(191, 91, 54, 0.14);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
 }
 
-.pace-card h3,
-.pace-card p,
-.pace-card strong {
+.pace-list-item h3,
+.pace-list-item p,
+.pace-list-item strong {
     margin: 0;
 }
 
-.pace-card h3 {
-    font-size: 1rem;
+.pace-list-item h3 {
+    font-size: 1.05rem;
 }
 
-.pace-card strong {
+.pace-values {
+    text-align: right;
+}
+
+.pace-list-item strong {
     display: block;
-    margin: 12px 0 4px;
     font-size: 1.35rem;
     color: var(--accent-deep);
 }
 
-.pace-card .pace-secondary {
+.pace-list-item .pace-secondary {
     color: var(--muted);
     font-size: 0.95rem;
+    margin-top: 4px;
 }
 
 .chart-wrap,
@@ -471,6 +488,10 @@ select:focus {
         grid-template-columns: 1fr;
     }
 
+    .entry-note-field {
+        grid-column: auto;
+    }
+
     .field-inline,
     .time-grid,
     .derived-head,
@@ -487,6 +508,15 @@ select:focus {
     }
 
     .fit-meta {
+        text-align: left;
+    }
+
+    .pace-list-item {
+        align-items: start;
+        flex-direction: column;
+    }
+
+    .pace-values {
         text-align: left;
     }
 }

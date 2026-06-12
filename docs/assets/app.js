@@ -1,21 +1,34 @@
 (function () {
-    const STORAGE_KEY = "pace-lab-draft-v1";
+    const STORAGE_KEY = "my-stp-draft-v1";
+    const LEGACY_STORAGE_KEY = "pace-lab-draft-v1";
     const MILES_PER_KILOMETER = 0.621371;
     const METERS_PER_MILE = 1609.34;
+    const DISTANCE_PRESETS = [
+        { key: "800m", label: "800 m", distanceValue: 800, distanceUnit: "m" },
+        { key: "1500m", label: "1500 m", distanceValue: 1500, distanceUnit: "m" },
+        { key: "1600m", label: "1600 m", distanceValue: 1600, distanceUnit: "m" },
+        { key: "mile", label: "Mile", distanceValue: 1, distanceUnit: "mi" },
+        { key: "3k", label: "3K", distanceValue: 3, distanceUnit: "km" },
+        { key: "5k", label: "5K", distanceValue: 5, distanceUnit: "km" },
+        { key: "10k", label: "10K", distanceValue: 10, distanceUnit: "km" },
+        { key: "15k", label: "15K", distanceValue: 15, distanceUnit: "km" },
+        { key: "half", label: "Half Marathon", distanceValue: 13.1, distanceUnit: "mi" },
+        { key: "marathon", label: "Marathon", distanceValue: 26.2, distanceUnit: "mi" },
+    ];
     const TRAINING_TARGETS = [
-        { name: "Easy Limit", durationSeconds: 100000, descriptor: "best-fit pace for a 100000 second effort" },
-        { name: "Fast Easy", durationSeconds: 20000, descriptor: "best-fit pace for a 20000 second effort" },
-        { name: "Steady-State", durationSeconds: 9000, descriptor: "best-fit pace for a 9000 second effort" },
-        { name: "Long Run Finish", durationSeconds: 6000, descriptor: "best-fit pace for a 6000 second effort" },
-        { name: "Tempo", durationSeconds: 3600, descriptor: "best-fit pace for a 3600 second effort" },
-        { name: "CV", durationSeconds: 1800, descriptor: "best-fit pace for a 1800 second effort" },
-        { name: "5K", durationSeconds: 900, descriptor: "best-fit pace for a 900 second effort" },
-        { name: "3K", durationSeconds: 600, descriptor: "best-fit pace for a 600 second effort" },
-        { name: "Mile", durationSeconds: 240, descriptor: "best-fit pace for a 240 second effort" },
+        { name: "Easy Limit", durationSeconds: 100000 },
+        { name: "Fast Easy", durationSeconds: 20000 },
+        { name: "Steady-State", durationSeconds: 9000 },
+        { name: "Long Run Finish", durationSeconds: 6000 },
+        { name: "Tempo", durationSeconds: 3600 },
+        { name: "CV", durationSeconds: 1800 },
+        { name: "5K", durationSeconds: 900 },
+        { name: "3K", durationSeconds: 600 },
+        { name: "Mile", durationSeconds: 240 },
     ];
     const DEMO_ENTRIES = [
-        { label: "Recent 5K", distanceValue: "5", distanceUnit: "km", hours: "0", minutes: "18", seconds: "00", raceDate: "" },
-        { label: "Recent 10K", distanceValue: "10", distanceUnit: "km", hours: "0", minutes: "37", seconds: "30", raceDate: "" },
+        { label: "", distancePreset: "5k", distanceValue: "5", distanceUnit: "km", hours: "0", minutes: "18", seconds: "00", raceDate: "" },
+        { label: "", distancePreset: "10k", distanceValue: "10", distanceUnit: "km", hours: "0", minutes: "37", seconds: "30", raceDate: "" },
     ];
 
     const refs = {
@@ -26,7 +39,7 @@
         calcError: document.getElementById("calc-error"),
         resultsEmpty: document.getElementById("results-empty"),
         resultsPanel: document.getElementById("results-panel"),
-        trainingPaceGrid: document.getElementById("training-pace-grid"),
+        trainingPaceList: document.getElementById("training-pace-list"),
         derivedTable: document.getElementById("derived-table"),
         fitMeta: document.getElementById("fit-meta"),
         fitChart: document.getElementById("fit-chart"),
@@ -70,6 +83,41 @@
         return value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
     }
 
+    function getDistancePresetByKey(key) {
+        return DISTANCE_PRESETS.find(function (preset) {
+            return preset.key === key;
+        }) || null;
+    }
+
+    function inferDistancePreset(distanceValue, distanceUnit) {
+        const numericValue = Number(distanceValue);
+        const normalizedUnit = String(distanceUnit || "").trim().toLowerCase();
+
+        if (!Number.isFinite(numericValue) || numericValue <= 0) {
+            return "";
+        }
+
+        const matchingPreset = DISTANCE_PRESETS.find(function (preset) {
+            if (preset.distanceUnit !== normalizedUnit) {
+                return false;
+            }
+
+            const tolerance = normalizedUnit === "m" ? 0.5 : 0.01;
+            return Math.abs(preset.distanceValue - numericValue) <= tolerance;
+        });
+
+        return matchingPreset ? matchingPreset.key : "";
+    }
+
+    function formatDistanceDisplay(distanceValue, distanceUnit) {
+        const presetKey = inferDistancePreset(distanceValue, distanceUnit);
+        const preset = getDistancePresetByKey(presetKey);
+        if (preset) {
+            return preset.label;
+        }
+        return `${formatDistanceValue(distanceValue)} ${distanceUnit}`;
+    }
+
     function formatDuration(totalSeconds) {
         const safeSeconds = Math.max(0, Math.round(totalSeconds));
         const hours = Math.floor(safeSeconds / 3600);
@@ -99,13 +147,23 @@
 
     function makeEntry(overrides) {
         const source = overrides || {};
+        const hasExplicitDurationBits = ["hours", "minutes", "seconds"].some(function (field) {
+            return typeof source[field] !== "undefined";
+        });
         const durationBits = typeof source.durationSeconds !== "undefined"
             ? splitDuration(source.durationSeconds)
-            : { hours: 0, minutes: 0, seconds: 0 };
+            : hasExplicitDurationBits
+                ? {
+                    hours: source.hours ?? "",
+                    minutes: source.minutes ?? "",
+                    seconds: source.seconds ?? "",
+                }
+                : { hours: "", minutes: "", seconds: "" };
 
         return {
             id: source.id || uid(),
             label: source.label || "",
+            distancePreset: source.distancePreset || inferDistancePreset(source.distanceValue, source.distanceUnit),
             distanceValue: `${source.distanceValue ?? ""}`,
             distanceUnit: source.distanceUnit || "km",
             hours: `${source.hours ?? durationBits.hours}`,
@@ -118,10 +176,8 @@
     function loadLocalDraft() {
         try {
             const raw = window.localStorage.getItem(STORAGE_KEY);
-            if (!raw) {
-                return null;
-            }
-            const parsed = JSON.parse(raw);
+            const legacyRaw = raw ? null : window.localStorage.getItem(LEGACY_STORAGE_KEY);
+            const parsed = JSON.parse(raw || legacyRaw || "null");
             return Array.isArray(parsed) ? parsed : null;
         } catch (_error) {
             return null;
@@ -133,6 +189,7 @@
             return {
                 id: entry.id,
                 label: entry.label,
+                distancePreset: entry.distancePreset,
                 distanceValue: entry.distanceValue,
                 distanceUnit: entry.distanceUnit,
                 hours: entry.hours,
@@ -188,6 +245,7 @@
                 return {
                     id: entry.id,
                     label: entry.label.trim(),
+                    distancePreset: entry.distancePreset,
                     distanceValue: parsePositiveNumber(entry.distanceValue),
                     distanceUnit: entry.distanceUnit,
                     durationSeconds: durationSecondsFromEntry(entry),
@@ -247,14 +305,15 @@
 
         const paceSecondsPerMile = durationSeconds / distanceMiles;
         const defaultLabel = `${formatDistanceValue(distanceValue)} ${distanceUnit}`;
+        const distanceDisplay = formatDistanceDisplay(distanceValue, distanceUnit);
 
         return {
             id: rawEntry.id,
             label: label,
-            displayLabel: label || defaultLabel,
+            displayLabel: label || distanceDisplay || defaultLabel,
             distanceValue: distanceValue,
             distanceUnit: distanceUnit,
-            distanceDisplay: `${formatDistanceValue(distanceValue)} ${distanceUnit}`,
+            distanceDisplay: distanceDisplay,
             durationSeconds: durationSeconds,
             durationDisplay: formatDuration(durationSeconds),
             raceDate: raceDate,
@@ -314,7 +373,6 @@
             const targetPace = (slope * Math.log(target.durationSeconds)) + intercept;
             return {
                 name: target.name,
-                descriptor: target.descriptor,
                 targetDurationSeconds: target.durationSeconds,
                 targetDurationDisplay: formatDuration(target.durationSeconds),
                 paceSecondsPerMile: targetPace,
@@ -343,29 +401,37 @@
 
     function renderEntries() {
         refs.entriesList.innerHTML = state.entries.map(function (entry, index) {
+            const usingCustomDistance = entry.distancePreset === "custom";
+            const selectedPreset = entry.distancePreset || "";
+
             return `
                 <div class="entry-row" data-index="${index}">
-                    <div class="field-group">
-                        <span class="mini-label">Race label</span>
-                        <input type="text" data-field="label" value="${escapeHtml(entry.label)}" placeholder="Recent 5K or State Meet">
-                    </div>
-                    <div class="field-group">
+                    <div class="field-group distance-stack">
                         <span class="mini-label">Distance</span>
-                        <div class="field-inline">
-                            <input type="number" min="0" step="0.01" data-field="distanceValue" value="${escapeHtml(entry.distanceValue)}" placeholder="5">
-                            <select data-field="distanceUnit">
-                                <option value="m" ${entry.distanceUnit === "m" ? "selected" : ""}>m</option>
-                                <option value="km" ${entry.distanceUnit === "km" ? "selected" : ""}>km</option>
-                                <option value="mi" ${entry.distanceUnit === "mi" ? "selected" : ""}>mi</option>
-                            </select>
-                        </div>
+                        <select data-field="distancePreset" aria-label="Race distance">
+                            <option value="" ${selectedPreset === "" ? "selected" : ""}>Choose a common race</option>
+                            ${DISTANCE_PRESETS.map(function (preset) {
+                                return `<option value="${preset.key}" ${selectedPreset === preset.key ? "selected" : ""}>${escapeHtml(preset.label)}</option>`;
+                            }).join("")}
+                            <option value="custom" ${selectedPreset === "custom" ? "selected" : ""}>Custom distance</option>
+                        </select>
+                        ${usingCustomDistance ? `
+                            <div class="field-inline custom-distance-fields">
+                                <input type="text" inputmode="decimal" data-field="distanceValue" value="${escapeHtml(entry.distanceValue)}" placeholder="Distance">
+                                <select data-field="distanceUnit" aria-label="Custom distance unit">
+                                    <option value="m" ${entry.distanceUnit === "m" ? "selected" : ""}>m</option>
+                                    <option value="km" ${entry.distanceUnit === "km" ? "selected" : ""}>km</option>
+                                    <option value="mi" ${entry.distanceUnit === "mi" ? "selected" : ""}>mi</option>
+                                </select>
+                            </div>
+                        ` : ""}
                     </div>
                     <div class="time-group">
                         <span class="mini-label">Finish time</span>
                         <div class="time-grid">
-                            <input type="number" min="0" data-field="hours" value="${escapeHtml(entry.hours)}" placeholder="hh">
-                            <input type="number" min="0" data-field="minutes" value="${escapeHtml(entry.minutes)}" placeholder="mm">
-                            <input type="number" min="0" data-field="seconds" value="${escapeHtml(entry.seconds)}" placeholder="ss">
+                            <input type="text" inputmode="numeric" data-field="hours" value="${escapeHtml(entry.hours)}" placeholder="hh" aria-label="Hours">
+                            <input type="text" inputmode="numeric" data-field="minutes" value="${escapeHtml(entry.minutes)}" placeholder="mm" aria-label="Minutes">
+                            <input type="text" inputmode="numeric" data-field="seconds" value="${escapeHtml(entry.seconds)}" placeholder="ss" aria-label="Seconds">
                         </div>
                     </div>
                     <div class="field-group">
@@ -373,6 +439,10 @@
                         <input type="date" data-field="raceDate" value="${escapeHtml(entry.raceDate)}">
                     </div>
                     <button class="icon-button" data-action="remove" type="button" aria-label="Remove entry">×</button>
+                    <div class="field-group entry-note-field">
+                        <span class="mini-label">Optional label</span>
+                        <input type="text" data-field="label" value="${escapeHtml(entry.label)}" placeholder="State meet, windy day, rust-buster, etc.">
+                    </div>
                 </div>
             `;
         }).join("");
@@ -392,13 +462,16 @@
     }
 
     function renderTrainingPaces(trainingPaces) {
-        refs.trainingPaceGrid.innerHTML = trainingPaces.map(function (pace) {
+        refs.trainingPaceList.innerHTML = trainingPaces.map(function (pace) {
             return `
-                <article class="pace-card">
-                    <h3>${escapeHtml(pace.name)}</h3>
-                    <p>${escapeHtml(pace.descriptor)}</p>
-                    <strong>${escapeHtml(pace.paceDisplay)}</strong>
-                    <p class="pace-secondary">${escapeHtml(pace.pacePerKmDisplay)}</p>
+                <article class="pace-list-item">
+                    <div class="pace-primary">
+                        <h3>${escapeHtml(pace.name)}</h3>
+                    </div>
+                    <div class="pace-values">
+                        <strong>${escapeHtml(pace.paceDisplay)}</strong>
+                        <p class="pace-secondary">${escapeHtml(pace.pacePerKmDisplay)}</p>
+                    </div>
                 </article>
             `;
         }).join("");
@@ -407,7 +480,7 @@
     function renderDerivedTable(entries) {
         refs.derivedTable.innerHTML = `
             <div class="derived-head">
-                <span>Race</span>
+                <span>Entry</span>
                 <span>Distance</span>
                 <span>Duration</span>
                 <span>Pace / mi</span>
@@ -514,7 +587,7 @@
             refs.resultsPanel.hidden = true;
             refs.fitMeta.textContent = state.calcError || "Add at least two performances to unlock the model.";
             refs.fitChart.innerHTML = "";
-            refs.trainingPaceGrid.innerHTML = "";
+            refs.trainingPaceList.innerHTML = "";
             refs.derivedTable.innerHTML = "";
             return;
         }
@@ -588,6 +661,25 @@
             if (!Number.isInteger(index) || !field) {
                 return;
             }
+
+            if (field === "distancePreset") {
+                const entry = state.entries[index];
+                const selectedPreset = event.target.value;
+                const preset = getDistancePresetByKey(selectedPreset);
+
+                entry.distancePreset = selectedPreset;
+                if (preset) {
+                    entry.distanceValue = String(preset.distanceValue);
+                    entry.distanceUnit = preset.distanceUnit;
+                } else if (!selectedPreset) {
+                    entry.distanceValue = "";
+                    entry.distanceUnit = "km";
+                }
+
+                persistAndRefresh({ rerenderEntries: true });
+                return;
+            }
+
             state.entries[index][field] = event.target.value;
             persistAndRefresh();
         };
