@@ -403,14 +403,14 @@
     function renderEntries() {
         refs.entriesList.innerHTML = state.entries.map(function (entry, index) {
             const selectedPreset = entry.distancePreset || "";
-            const showCustomFields = !selectedPreset || selectedPreset === "custom";
+            const showCustomFields = selectedPreset === "custom";
 
             return `
                 <div class="entry-row" data-index="${index}">
                     <div class="field-group distance-stack">
                         <span class="mini-label">Race distance</span>
                         <select data-field="distancePreset" aria-label="Common race distance">
-                            <option value="" ${selectedPreset === "" ? "selected" : ""}>Common distance</option>
+                            <option value="" ${selectedPreset === "" ? "selected" : ""}>Select distance</option>
                             ${DISTANCE_PRESETS.map(function (preset) {
                                 return `<option value="${preset.key}" ${selectedPreset === preset.key ? "selected" : ""}>${escapeHtml(preset.label)}</option>`;
                             }).join("")}
