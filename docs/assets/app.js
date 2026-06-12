@@ -27,8 +27,8 @@
         { name: "Mile", durationSeconds: 240 },
     ];
     const DEMO_ENTRIES = [
-        { label: "", distancePreset: "5k", distanceValue: "5", distanceUnit: "km", hours: "0", minutes: "18", seconds: "00", raceDate: "" },
-        { label: "", distancePreset: "10k", distanceValue: "10", distanceUnit: "km", hours: "0", minutes: "37", seconds: "30", raceDate: "" },
+        { distancePreset: "5k", distanceValue: "5", distanceUnit: "km", hours: "0", minutes: "18", seconds: "00", raceDate: "" },
+        { distancePreset: "10k", distanceValue: "10", distanceUnit: "km", hours: "0", minutes: "37", seconds: "30", raceDate: "" },
     ];
 
     const refs = {
@@ -169,7 +169,6 @@
 
         return {
             id: source.id || uid(),
-            label: source.label || "",
             distancePreset: source.distancePreset || deriveDistancePreset(source.distanceValue, source.distanceUnit),
             distanceValue: `${source.distanceValue ?? ""}`,
             distanceUnit: source.distanceUnit || "km",
@@ -195,7 +194,6 @@
         const payload = state.entries.map(function (entry) {
             return {
                 id: entry.id,
-                label: entry.label,
                 distancePreset: entry.distancePreset,
                 distanceValue: entry.distanceValue,
                 distanceUnit: entry.distanceUnit,
@@ -233,8 +231,7 @@
     }
 
     function isBlankEntry(entry) {
-        return !entry.label.trim() &&
-            !`${entry.distanceValue}`.trim() &&
+        return !`${entry.distanceValue}`.trim() &&
             !`${entry.hours}`.trim() &&
             !`${entry.minutes}`.trim() &&
             !`${entry.seconds}`.trim() &&
@@ -251,7 +248,6 @@
             .map(function (entry) {
                 return {
                     id: entry.id,
-                    label: entry.label.trim(),
                     distancePreset: entry.distancePreset,
                     distanceValue: parsePositiveNumber(entry.distanceValue),
                     distanceUnit: entry.distanceUnit,
@@ -286,7 +282,6 @@
         const distanceValue = Number(rawEntry.distanceValue);
         const durationSeconds = Number(rawEntry.durationSeconds);
         const distanceUnit = String(rawEntry.distanceUnit || "").trim().toLowerCase();
-        const label = String(rawEntry.label || "").trim().slice(0, 80);
         const raceDate = String(rawEntry.raceDate || "").trim();
 
         if (!Number.isFinite(distanceValue) || distanceValue <= 0) {
@@ -310,8 +305,7 @@
 
         return {
             id: rawEntry.id,
-            label: label,
-            displayLabel: label || distanceDisplay || defaultLabel,
+            displayLabel: distanceDisplay || defaultLabel,
             distanceValue: distanceValue,
             distanceUnit: distanceUnit,
             distanceDisplay: distanceDisplay,
@@ -440,9 +434,6 @@
                         <input type="date" data-field="raceDate" value="${escapeHtml(entry.raceDate)}">
                     </div>
                     <button class="icon-button" data-action="remove" type="button" aria-label="Remove entry">×</button>
-                    <div class="field-group entry-note-field">
-                        <input type="text" data-field="label" value="${escapeHtml(entry.label)}" placeholder="Optional label">
-                    </div>
                 </div>
             `;
         }).join("");
