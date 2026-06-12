@@ -39,35 +39,28 @@ select {
 .page-shell {
     width: min(1220px, calc(100% - 32px));
     margin: 0 auto;
-    padding: 28px 0 48px;
+    padding: 18px 0 32px;
 }
 
 .hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
-    gap: 24px;
-    align-items: stretch;
-    margin-bottom: 24px;
+    margin-bottom: 18px;
 }
 
 .hero-copy,
-.hero-panel,
 .card {
     border: 1px solid var(--line);
     backdrop-filter: blur(10px);
     box-shadow: var(--shadow);
 }
 
-.hero-copy,
-.hero-panel {
+.hero-copy {
     border-radius: var(--radius-xl);
-    padding: 30px;
+    padding: 20px 24px;
     background: linear-gradient(180deg, rgba(255, 252, 247, 0.92), rgba(255, 247, 236, 0.82));
 }
 
 .eyebrow,
-.section-kicker,
-.panel-kicker {
+.section-kicker {
     margin: 0 0 12px;
     text-transform: uppercase;
     letter-spacing: 0.18em;
@@ -78,7 +71,6 @@ select {
 
 .hero h1,
 .section-heading h2,
-.notes-card h2,
 .chart-heading h3 {
     margin: 0;
     font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
@@ -86,17 +78,13 @@ select {
 }
 
 .hero h1 {
-    font-size: clamp(2.4rem, 6vw, 4.5rem);
-    line-height: 0.96;
-    max-width: 12ch;
+    font-size: clamp(1.7rem, 3vw, 2.6rem);
+    line-height: 1;
+    max-width: 16ch;
 }
 
 .hero-text,
-.hero-steps,
-.side-note,
-.account-copy,
 .chart-heading p,
-.draft-note,
 .muted,
 .empty-state {
     color: var(--muted);
@@ -104,48 +92,21 @@ select {
 }
 
 .hero-text {
-    font-size: 1.03rem;
-    max-width: 58ch;
-    margin: 16px 0 0;
-}
-
-.hero-panel {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.hero-steps {
-    margin: 0;
-    padding-left: 20px;
+    font-size: 0.96rem;
+    max-width: 64ch;
+    margin: 10px 0 0;
 }
 
 .layout {
     display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
-    gap: 24px;
+    gap: 18px;
     align-items: start;
-}
-
-.workspace {
-    grid-column: 1 / 2;
-}
-
-.results-card {
-    grid-column: 1 / 2;
-}
-
-.sidebar {
-    display: grid;
-    gap: 24px;
-    grid-column: 2 / 3;
-    grid-row: 1 / span 2;
 }
 
 .card {
     background: var(--surface);
     border-radius: var(--radius-xl);
-    padding: 24px;
+    padding: 20px;
 }
 
 .section-heading {
@@ -153,15 +114,10 @@ select {
     justify-content: space-between;
     align-items: start;
     gap: 16px;
-    margin-bottom: 20px;
+    margin-bottom: 14px;
 }
 
-.section-heading.compact {
-    margin-bottom: 16px;
-}
-
-.section-heading h2,
-.notes-card h2 {
+.section-heading h2 {
     font-size: 1.7rem;
 }
 
@@ -191,7 +147,6 @@ select {
     border: 1px solid var(--line);
 }
 
-.table-head,
 .entry-row {
     display: grid;
     grid-template-columns: minmax(250px, 1.2fr) minmax(180px, 1fr) minmax(150px, 0.8fr) 48px;
@@ -199,21 +154,13 @@ select {
     align-items: center;
 }
 
-.table-head {
-    padding: 0 8px 12px;
-    color: var(--muted);
-    font-size: 0.88rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-}
-
 .entries-list {
     display: grid;
-    gap: 12px;
+    gap: 10px;
 }
 
 .entry-row {
-    padding: 14px;
+    padding: 12px;
     border-radius: var(--radius-lg);
     border: 1px solid rgba(113, 80, 44, 0.12);
     background: rgba(255, 252, 247, 0.88);
@@ -229,6 +176,12 @@ select {
     display: grid;
     grid-template-columns: 1fr 92px;
     gap: 10px;
+}
+
+.distance-preset-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .distance-stack,
@@ -250,11 +203,22 @@ select {
 input,
 select {
     width: 100%;
-    padding: 11px 12px;
+    padding: 10px 12px;
     border-radius: var(--radius-md);
     border: 1px solid rgba(113, 80, 44, 0.18);
     background: rgba(255, 255, 255, 0.82);
     color: var(--text);
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
 }
 
 input:focus,
@@ -280,10 +244,31 @@ select:focus {
     color: var(--accent-deep);
 }
 
+.preset-chip {
+    padding: 8px 12px;
+    border: 1px solid rgba(113, 80, 44, 0.14);
+    border-radius: 999px;
+    background: rgba(255, 251, 245, 0.9);
+    color: var(--muted);
+    cursor: pointer;
+    transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+
+.preset-chip:hover {
+    transform: translateY(-1px);
+    color: var(--text);
+}
+
+.preset-chip.is-active {
+    background: rgba(191, 91, 54, 0.14);
+    border-color: rgba(191, 91, 54, 0.32);
+    color: var(--accent-deep);
+}
+
 .workspace-footer {
     display: grid;
     gap: 8px;
-    margin-top: 16px;
+    margin-top: 12px;
 }
 
 .error-text {
@@ -291,9 +276,6 @@ select:focus {
     margin: 0;
 }
 
-.draft-note,
-.account-copy,
-.side-note,
 .empty-state,
 .chart-heading p {
     margin: 0;
@@ -456,32 +438,25 @@ select:focus {
 }
 
 @media (max-width: 1080px) {
-    .layout,
-    .hero {
-        grid-template-columns: 1fr;
+    .entry-row {
+        grid-template-columns: minmax(0, 1fr);
     }
 
-    .sidebar {
-        grid-column: 1 / 2;
-        grid-row: auto;
+    .entry-note-field {
+        grid-column: auto;
     }
 }
 
 @media (max-width: 820px) {
     .page-shell {
         width: min(100% - 20px, 1220px);
-        padding-top: 16px;
+        padding-top: 12px;
     }
 
     .card,
-    .hero-copy,
-    .hero-panel {
-        padding: 18px;
+    .hero-copy {
+        padding: 16px;
         border-radius: 22px;
-    }
-
-    .table-head {
-        display: none;
     }
 
     .entry-row {

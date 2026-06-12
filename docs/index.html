@@ -12,19 +12,10 @@
         <header class="hero fade-up">
             <div class="hero-copy">
                 <p class="eyebrow">my-stp</p>
-                <h1>Suggested training paces built from more than one race.</h1>
+                <h1>Suggested training paces from multiple race results.</h1>
                 <p class="hero-text">
-                    Add two or more recent race performances, convert each result into a standardized mile pace,
-                    and fit a logarithmic curve through the data to estimate smarter training paces.
+                    Add two or more recent races and get a browser-based logarithmic fit for your suggested training paces.
                 </p>
-            </div>
-            <div class="hero-panel">
-                <p class="panel-kicker">How it works</p>
-                <ol class="hero-steps">
-                    <li>Enter race distances and finish times.</li>
-                    <li>We standardize every performance to seconds per mile.</li>
-                    <li>A logarithmic best-fit line predicts training paces across effort durations.</li>
-                </ol>
             </div>
         </header>
 
@@ -41,49 +32,12 @@
                     </div>
                 </div>
 
-                <div class="table-head">
-                    <span>Distance</span>
-                    <span>Time</span>
-                    <span>Date</span>
-                    <span>Row</span>
-                </div>
-
                 <div id="entries-list" class="entries-list"></div>
 
                 <div class="workspace-footer">
-                    <p id="draft-note" class="draft-note"></p>
                     <p id="calc-error" class="error-text" hidden></p>
                 </div>
             </section>
-
-            <aside class="sidebar">
-                <section class="card account-card fade-up">
-                    <div class="section-heading compact">
-                        <div>
-                            <p class="section-kicker">Guest Mode</p>
-                            <h2>Browser-saved draft</h2>
-                        </div>
-                    </div>
-
-                    <p class="account-copy">
-                        This version runs entirely in guest mode. Your current board is saved in this browser on this device, so if you close and reopen the page your entries should still be here.
-                    </p>
-                    <p class="side-note">
-                        Drafts do not sync across devices and can be cleared by private browsing mode or by deleting site data.
-                    </p>
-                </section>
-
-                <section class="card notes-card fade-up">
-                    <p class="section-kicker">Interpretation</p>
-                    <h2>What the fit means</h2>
-                    <p class="side-note">
-                        The suggested paces are anchored to your requested effort durations, from an easy-limit effort of 100000 seconds down to a mile effort of 240 seconds.
-                    </p>
-                    <p class="side-note">
-                        This is still an estimate, not a replacement for a coach or context like terrain, weather, and fatigue.
-                    </p>
-                </section>
-            </aside>
 
             <section class="card results-card fade-up">
                 <div class="section-heading">

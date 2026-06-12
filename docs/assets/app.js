@@ -35,7 +35,6 @@
         entriesList: document.getElementById("entries-list"),
         addEntryButton: document.getElementById("add-entry-button"),
         clearEntriesButton: document.getElementById("clear-entries-button"),
-        draftNote: document.getElementById("draft-note"),
         calcError: document.getElementById("calc-error"),
         resultsEmpty: document.getElementById("results-empty"),
         resultsPanel: document.getElementById("results-panel"),
@@ -109,6 +108,14 @@
         return matchingPreset ? matchingPreset.key : "";
     }
 
+    function deriveDistancePreset(distanceValue, distanceUnit) {
+        const inferredPreset = inferDistancePreset(distanceValue, distanceUnit);
+        if (inferredPreset) {
+            return inferredPreset;
+        }
+        return parsePositiveNumber(distanceValue) > 0 ? "custom" : "";
+    }
+
     function formatDistanceDisplay(distanceValue, distanceUnit) {
         const presetKey = inferDistancePreset(distanceValue, distanceUnit);
         const preset = getDistancePresetByKey(presetKey);
@@ -163,7 +170,7 @@
         return {
             id: source.id || uid(),
             label: source.label || "",
-            distancePreset: source.distancePreset || inferDistancePreset(source.distanceValue, source.distanceUnit),
+            distancePreset: source.distancePreset || deriveDistancePreset(source.distanceValue, source.distanceUnit),
             distanceValue: `${source.distanceValue ?? ""}`,
             distanceUnit: source.distanceUnit || "km",
             hours: `${source.hours ?? durationBits.hours}`,
@@ -252,12 +259,6 @@
                     raceDate: entry.raceDate,
                 };
             });
-    }
-
-    function countIncompleteEntries() {
-        return state.entries.filter(function (entry) {
-            return !isBlankEntry(entry) && !isCompleteEntry(entry);
-        }).length;
     }
 
     function hasAnyDraftData() {
@@ -401,30 +402,40 @@
 
     function renderEntries() {
         refs.entriesList.innerHTML = state.entries.map(function (entry, index) {
-            const usingCustomDistance = entry.distancePreset === "custom";
-            const selectedPreset = entry.distancePreset || "";
-
             return `
                 <div class="entry-row" data-index="${index}">
                     <div class="field-group distance-stack">
                         <span class="mini-label">Distance</span>
-                        <select data-field="distancePreset" aria-label="Race distance">
-                            <option value="" ${selectedPreset === "" ? "selected" : ""}>Choose a common race</option>
+                        <div class="distance-preset-list" role="group" aria-label="Common race distances">
                             ${DISTANCE_PRESETS.map(function (preset) {
-                                return `<option value="${preset.key}" ${selectedPreset === preset.key ? "selected" : ""}>${escapeHtml(preset.label)}</option>`;
+                                return `
+                                    <button
+                                        class="preset-chip ${entry.distancePreset === preset.key ? "is-active" : ""}"
+                                        data-action="preset"
+                                        data-preset="${preset.key}"
+                                        type="button"
+                                    >
+                                        ${escapeHtml(preset.label)}
+                                    </button>
+                                `;
                             }).join("")}
-                            <option value="custom" ${selectedPreset === "custom" ? "selected" : ""}>Custom distance</option>
-                        </select>
-                        ${usingCustomDistance ? `
-                            <div class="field-inline custom-distance-fields">
-                                <input type="text" inputmode="decimal" data-field="distanceValue" value="${escapeHtml(entry.distanceValue)}" placeholder="Distance">
-                                <select data-field="distanceUnit" aria-label="Custom distance unit">
-                                    <option value="m" ${entry.distanceUnit === "m" ? "selected" : ""}>m</option>
-                                    <option value="km" ${entry.distanceUnit === "km" ? "selected" : ""}>km</option>
-                                    <option value="mi" ${entry.distanceUnit === "mi" ? "selected" : ""}>mi</option>
-                                </select>
-                            </div>
-                        ` : ""}
+                            <button
+                                class="preset-chip ${entry.distancePreset === "custom" ? "is-active" : ""}"
+                                data-action="preset"
+                                data-preset="custom"
+                                type="button"
+                            >
+                                Custom
+                            </button>
+                        </div>
+                        <div class="field-inline custom-distance-fields">
+                            <input type="text" inputmode="decimal" data-field="distanceValue" value="${escapeHtml(entry.distanceValue)}" placeholder="Distance">
+                            <select data-field="distanceUnit" aria-label="Distance unit">
+                                <option value="m" ${entry.distanceUnit === "m" ? "selected" : ""}>m</option>
+                                <option value="km" ${entry.distanceUnit === "km" ? "selected" : ""}>km</option>
+                                <option value="mi" ${entry.distanceUnit === "mi" ? "selected" : ""}>mi</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="time-group">
                         <span class="mini-label">Finish time</span>
@@ -446,19 +457,6 @@
                 </div>
             `;
         }).join("");
-    }
-
-    function renderDraftNote() {
-        const incompleteCount = countIncompleteEntries();
-        let note = "Guest mode is active. This board is stored locally in this browser.";
-
-        if (incompleteCount === 1) {
-            note += " One incomplete row is still saved locally until it has both a distance and a finish time.";
-        } else if (incompleteCount > 1) {
-            note += ` ${incompleteCount} incomplete rows are still saved locally until they have both a distance and a finish time.`;
-        }
-
-        refs.draftNote.textContent = note;
     }
 
     function renderTrainingPaces(trainingPaces) {
@@ -602,7 +600,6 @@
 
     function render() {
         renderEntries();
-        renderDraftNote();
         renderResults();
         setCalcError(state.calcError);
     }
@@ -646,7 +643,6 @@
         if (settings.rerenderEntries) {
             renderEntries();
         }
-        renderDraftNote();
         queueCalculate();
     }
 
@@ -662,25 +658,16 @@
                 return;
             }
 
-            if (field === "distancePreset") {
-                const entry = state.entries[index];
-                const selectedPreset = event.target.value;
-                const preset = getDistancePresetByKey(selectedPreset);
-
-                entry.distancePreset = selectedPreset;
-                if (preset) {
-                    entry.distanceValue = String(preset.distanceValue);
-                    entry.distanceUnit = preset.distanceUnit;
-                } else if (!selectedPreset) {
-                    entry.distanceValue = "";
-                    entry.distanceUnit = "km";
-                }
-
-                persistAndRefresh({ rerenderEntries: true });
+            state.entries[index][field] = event.target.value;
+            if (field === "distanceValue" || field === "distanceUnit") {
+                state.entries[index].distancePreset = deriveDistancePreset(
+                    state.entries[index].distanceValue,
+                    state.entries[index].distanceUnit
+                );
+                persistAndRefresh({ rerenderEntries: event.type === "change" });
                 return;
             }
 
-            state.entries[index][field] = event.target.value;
             persistAndRefresh();
         };
 
@@ -702,6 +689,33 @@
         refs.entriesList.addEventListener("change", handleEntryMutation);
 
         refs.entriesList.addEventListener("click", function (event) {
+            const presetButton = event.target.closest("[data-action='preset']");
+            if (presetButton) {
+                const row = presetButton.closest(".entry-row");
+                const index = Number(row.dataset.index);
+                const presetKey = presetButton.dataset.preset;
+                const entry = state.entries[index];
+                const preset = getDistancePresetByKey(presetKey);
+
+                if (!Number.isInteger(index) || !entry) {
+                    return;
+                }
+
+                if (preset) {
+                    entry.distanceValue = String(preset.distanceValue);
+                    entry.distanceUnit = preset.distanceUnit;
+                    entry.distancePreset = preset.key;
+                } else {
+                    entry.distancePreset = "custom";
+                    if (!`${entry.distanceValue}`.trim()) {
+                        entry.distanceUnit = "km";
+                    }
+                }
+
+                persistAndRefresh({ rerenderEntries: true });
+                return;
+            }
+
             const button = event.target.closest("[data-action='remove']");
             if (!button) {
                 return;
